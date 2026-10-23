@@ -1,0 +1,4 @@
+interface:
+  display_name: "SmartEDA Agent"
+  short_description: "Operate and verify native SmartEDA circuits"
+  default_prompt: "Use $smarteda-agent to build and verify a SmartEDA circuit through native serialization."

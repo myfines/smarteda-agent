@@ -1,0 +1,13 @@
+node_modules/
+profiles/
+*-profile/
+cache/
+.headroom-cache/
+queue/
+output/
+.env*
+*.log
+*.wasm
+*.woff*
+__pycache__/
+*.pyc
