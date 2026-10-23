@@ -1,23 +1,66 @@
-# SmartEDA agent
+# SmartEDA Agent MCP
 
-A reusable Codex skill for nonvisual SmartEDA Qt/WASM circuit operation using official Playwright MCP and native serialization. Tested on the October 2026 application; this is a community integration, not an official SmartEDA API or standalone custom MCP server.
+Nonvisual tools for SmartEDA's Qt/WASM circuit editor, plus a reusable Codex skill. Community project, tested against the October 2026 web application. No screenshot coordinates, OCR, or image model is required to operate the tools.
 
-## Install
+## Quick start
 
-Copy `skills/smarteda-agent` to your Codex skills directory. For an installed copy, run `npm ci` inside that skill directory before using its optional MCP caller. For the optional MCP caller, run `npm ci` at repository root and install Chrome if needed. Supply a dedicated profile with your authorized login. Never commit that profile.
+Requirements: Node.js 20+, Chrome, and an authorized SmartEDA account.
 
 ```sh
-python skills/smarteda-agent/scripts/circuit.py check skills/smarteda-agent/assets/pt100.circuit --wires 13
-python -m unittest discover -s tests
-node skills/smarteda-agent/scripts/mcp-call.mjs /absolute/private/profile --list
+git clone https://github.com/myfines/smarteda-agent.git
+cd smarteda-agent
+npm ci
+npm test
 ```
 
-For calls, create a JSON file with `name` (an available MCP tool) and `args`. Read the server's current tools before selecting one. The helper closes its MCP connection after each bounded call; persistent login remains in the caller-selected profile.
+Configure your MCP client (replace both absolute paths):
 
-## Verified capabilities
+```json
+{
+  "mcpServers": {
+    "smarteda": {
+      "command": "node",
+      "args": ["/absolute/path/smarteda-agent/src/server.mjs"],
+      "env": {
+        "SMARTEDA_PROFILE": "/absolute/private/chrome-profile",
+        "SMARTEDA_HEADLESS": "false",
+        "SMARTEDA_OUTPUT": "/absolute/private/smarteda-output"
+      }
+    }
+  }
+}
+```
 
-Multiline native import, 14-component/13-wire PT100 circuit serialization, ideal 1mA source, mV probes, native power operation, seven temperature/lead/fault cases, cloud save/readback, project rename and official project export. Detailed calls and failure recovery are in the skill references.
+Call `smarteda_open` with your own full simulator URL. Log in manually in the visible dedicated browser if required. Do not reuse a profile while another Chrome process owns it. Once authenticated, `SMARTEDA_HEADLESS=true` supports operation without a visible window. The first native initialization can be slow; `smarteda_read` reports engine-not-ready rather than pretending success.
 
-Compensation `(2VB-VA)/I` requires matching current-carrying leads. Native ADC/MCU and practical current-source electronics were not implemented. Short and high-resistance cases substitute finite resistors. A successful native export does not establish competition submission.
+## Tools
 
-No credentials, cloud identifiers, browser profiles or vendor runtime files are included. Module names and native callbacks can change with platform releases. Fetch vendor assets only from the authorized official site when needed. Playwright MCP and MCP SDK remain their respective upstream projects: https://github.com/microsoft/playwright-mcp and https://github.com/modelcontextprotocol/typescript-sdk .
+| Tool              | Purpose                                                                           |
+| ----------------- | --------------------------------------------------------------------------------- |
+| smarteda_open     | Open an explicitly selected official simulator URL                                |
+| smarteda_read     | Read structured native components, connectors and captured simulation telemetry   |
+| smarteda_validate | Validate XML and connector references offline                                     |
+| smarteda_patch    | Change existing component properties offline; preserve IDs/topology               |
+| smarteda_apply    | Back up cloud/native data, save multiline XML, reopen and verify properties/wires |
+| smarteda_simulate | Reset/start or stop; capture actual native time/status callbacks                  |
+| smarteda_export   | Download the official project archive through its DOM control                     |
+
+`smarteda_apply` requires the current project's `expectedFileId` and an observed current frontend file module path. The tested path was `/assets/index-DRd14vBk.js`; do not assume it survives a platform update. On verification timeout, inspect the saved backup and current circuit before retrying. No automatic repeated mutation is performed.
+
+**Numerical limitation:** the native canvas currently exposes no verified probe-voltage API. Read/apply/simulate/export work without vision, but native numerical voltage readout is explicitly marked unavailable. Simulation telemetry proves runtime advancement, not electrical correctness. Recorded screenshot readings are acceptance evidence, not a secretly substituted solver or a live MCP numerical endpoint.
+
+## PT100 example
+
+`examples/pt100-v2` contains an original 54-component/58-connector design: two buffers, three-wire compensation, zero offset and gain, RC filter, and three automatic comparator flags. The normal 100 C native output was about 1.540 V. At 180 C the overtemperature flag went high; finite short and high-resistance substitutions activated their corresponding fault flags. Fault flags take priority when interpreting temperature; the raw overtemperature flag can also be high during a high-resistance fault.
+
+This is still a simulation front end: ideal 1mA source, ideal rails and generic op-amp/comparator models, no device-level source compliance/protection, no comparator hysteresis, no native ADC/MCU firmware. A 30k fault produces unrealistically high sensor voltage with the ideal source. Do not use this as a validated industrial hardware design.
+
+For Codex, copy `skills/smarteda-agent` into your skills directory. Its optional standalone Playwright MCP caller has its own pinned package files; run `npm ci` in the installed skill directory if using that helper. Native model formats and recovery details are in the skill references.
+
+## Verification and privacy
+
+Run `npm test` (Node unit tests and real stdio MCP protocol tests) and `python -m unittest discover -s tests` (XML helper tests). The native case evidence is documented separately; automated offline tests do not imply live platform compatibility.
+
+Keep profiles, cloud backups, exports, credentials and local logs private. The repository contains no account/project identifiers or proprietary runtime files. Runtime assets must be fetched from the authorized official site, not redistributed here. See [CONTRIBUTING.md](CONTRIBUTING.md) for the release checks.
+
+Upstream: [Playwright MCP](https://github.com/microsoft/playwright-mcp), [MCP SDK](https://github.com/modelcontextprotocol/typescript-sdk). Original project code is MIT licensed; upstream dependencies retain their own licenses.

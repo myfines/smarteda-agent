@@ -11,3 +11,4 @@ output/
 *.woff*
 __pycache__/
 *.pyc
+smarteda-output/
