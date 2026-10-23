@@ -2,6 +2,9 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import {
+  translateCircuit,
+  buildScopeCode,
+  buildLayoutCode,
   parseCircuit,
   patchCircuit,
   assertTarget,
@@ -19,7 +22,7 @@ test("native model has structured components and complete wires", () => {
 });
 test("patch preserves topology and escapes XML values", () => {
   const out = patchCircuit(xml, [
-    { id: "Resistor-1", properties: { Resistance: "5 Ω", label: "R & test" } },
+    { id: "Resistor-1", properties: { Resistance: "5 惟", label: "R & test" } },
   ]);
   assert.equal(parseCircuit(out).connectors.length, 13);
   assert.match(out, /&amp;/);
@@ -44,4 +47,43 @@ test("read and simulation code are selector-free", () => {
   assert.match(buildReadCode(), /getSavedCirc/);
   assert.match(buildSimulationCode("start"), /setSimTime/);
   assert.doesNotMatch(buildReadCode(), /screenshot|click/);
+});
+
+test("translate updates every wire point and preserves topology", () => {
+  const out = translateCircuit(xml, -800, -60);
+  const m = parseCircuit(out);
+  assert.equal(m.connectors.length, 13);
+  assert.equal(
+    m.components.find((x) => x.CircId === "DcCurrentAlwaysOn-6").Pos,
+    "-1000,-60",
+  );
+  assert.equal(m.connectors[0].pointList, "-1000,-80,-1000,-160");
+});
+test("layout code accepts bounded custom paper sizes only", () => {
+  assert.match(buildLayoutCode(700, 350), /passSetting/);
+  assert.throws(() => buildLayoutCode(-1, 350));
+  assert.throws(() => buildLayoutCode(700, Infinity));
+});
+
+test("scope capture uses real native callback, restores it, and rejects injected IDs", () => {
+  const code = buildScopeCode("Oscope-90", 3);
+  assert.match(code, /sendDataToUI/);
+  assert.match(code, /finally/);
+  assert.match(code, /handleOscopeDisplayData/);
+  assert.throws(() => buildScopeCode("bad id", 3));
+  assert.throws(() => buildScopeCode("Oscope-90", 1001));
+});
+
+test("known identical native Trigger duplication is normalized, conflicting values fail", () => {
+  assert.equal(
+    parseCircuit(
+      '<circuit><item itemtype="Oscope" CircId="Oscope-1" Trigger="0" Trigger="0" /></circuit>',
+    ).components.length,
+    1,
+  );
+  assert.throws(() =>
+    parseCircuit(
+      '<circuit><item itemtype="Oscope" CircId="Oscope-1" Trigger="0" Trigger="1" /></circuit>',
+    ),
+  );
 });

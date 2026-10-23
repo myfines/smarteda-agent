@@ -16,3 +16,11 @@ class CircuitTests(unittest.TestCase):
     def test_dangling(self):
         with self.assertRaisesRegex(ValueError,'Dangling'):
             c.inspect_xml('<circuit><item itemtype="Connector" uid="c" startpinid="unknown-pin"/></circuit>')
+
+class ScopeCompatibilityTests(unittest.TestCase):
+    def test_same_attribute_duplicates(self):
+        text='<circuit><item itemtype="Oscope" CircId="Oscope-1" Trigger="0" Trigger="0" connectGnd="true" connectGnd="true"/></circuit>'
+        self.assertEqual(c.inspect_xml(text)[1]['components'],1)
+    def test_conflicting_attribute_duplicates(self):
+        with self.assertRaisesRegex(ValueError,'Conflicting'):
+            c.inspect_xml('<circuit><item itemtype="Oscope" CircId="Oscope-1" Trigger="0" Trigger="1"/></circuit>')

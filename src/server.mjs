@@ -9,6 +9,9 @@ import { dirname, join, resolve } from "node:path";
 import { mkdir, writeFile } from "node:fs/promises";
 import { randomUUID } from "node:crypto";
 import {
+  translateCircuit,
+  buildLayoutCode,
+  buildScopeCode,
   parseCircuit,
   patchCircuit,
   assertTarget,
@@ -39,7 +42,7 @@ async function getBrowser() {
     ];
     if (process.env.SMARTEDA_HEADLESS !== "false") args.push("--headless");
     const c = new Client(
-      { name: "smarteda-native-backend", version: "0.2.0" },
+      { name: "smarteda-native-backend", version: "0.3.0" },
       { capabilities: {} },
     );
     await c.connect(
@@ -95,7 +98,7 @@ async function snapshot() {
   const m = parseCircuit(s.xml);
   return { ...s, components: m.components, connectors: m.connectors };
 }
-const server = new McpServer({ name: "smarteda-agent", version: "0.2.0" });
+const server = new McpServer({ name: "smarteda-agent", version: "0.3.0" });
 function tool(name, description, inputSchema, handler) {
   server.registerTool(name, { description, inputSchema }, async (args) => {
     const task = chain.then(async () => {
@@ -147,7 +150,11 @@ tool(
       components: s.components,
       connectors: s.connectors,
       simulation: s.simulation,
-      measurementAvailable: false,
+      numericalScopeDataAvailable: s.components.some(
+        (c) => c.itemtype === "Oscope",
+      ),
+      measurementNote:
+        "Use smarteda_scope_read for verified connected scopes; native probe text itself is not exposed",
     };
   },
 );
@@ -194,6 +201,7 @@ tool(
     fileModule: z.string().regex(/^\/assets\/[A-Za-z0-9_-]+\.js$/),
   },
   async ({ xml, expectedFileId, fileModule }) => {
+    xml = patchCircuit(xml, []);
     const desired = parseCircuit(xml);
     const before = await snapshot();
     if (assertTarget(before.url) !== expectedFileId)
@@ -269,8 +277,61 @@ tool(
     await mkdir(output, { recursive: true });
     const path = join(output, randomUUID() + ".zip");
     return await run(
-      `async(page)=>{const pending=page.waitForEvent('download',{timeout:20000});await page.getByTitle('导出项目',{exact:true}).click();const download=await pending;const error=await download.failure();if(error)throw Error('Vendor export download failed');await download.saveAs(${JSON.stringify(path)});return {path:${JSON.stringify(path)},vendorFilename:download.suggestedFilename()}}`,
+      `async(page)=>{const pending=page.waitForEvent('download',{timeout:20000});await page.getByTitle('瀵煎嚭椤圭洰',{exact:true}).click();const download=await pending;const error=await download.failure();if(error)throw Error('Vendor export download failed');await download.saveAs(${JSON.stringify(path)});return {path:${JSON.stringify(path)},vendorFilename:download.suggestedFilename()}}`,
     );
+  },
+);
+tool(
+  "smarteda_translate",
+  "Translate all native component positions and connector points offline without changing electrical topology.",
+  {
+    xml: z.string().max(5_000_000),
+    dx: z.number().finite(),
+    dy: z.number().finite(),
+  },
+  async ({ xml, dx, dy }) => ({ xml: translateCircuit(xml, dx, dy) }),
+);
+tool(
+  "smarteda_layout",
+  "Set a custom paper size in mm using native settings, then verify saved cloud settings. Preserves native backup.",
+  {
+    expectedFileId: z.string().min(1),
+    width: z.number().min(200).max(100000),
+    height: z.number().min(200).max(100000),
+  },
+  async ({ expectedFileId, width, height }) => {
+    const before = await snapshot();
+    if (assertTarget(before.url) !== expectedFileId)
+      throw Error("Target file mismatch");
+    await mkdir(output, { recursive: true });
+    const backup = join(output, randomUUID() + ".json");
+    await writeFile(
+      backup,
+      JSON.stringify({ native: before.xml, url: before.url }),
+      "utf8",
+    );
+    return {
+      ...(await run(buildLayoutCode(width, height, expectedFileId))),
+      backup,
+    };
+  },
+);
+tool(
+  "smarteda_scope_read",
+  "Read native Oscope buffered waveform data (two values per sample, 0.01V reported precision). A fresh callback does NOT establish current sample freshness. Requires a connected scope; no OCR or substitute solver.",
+  {
+    scopeId: z.string().regex(/^Oscope-[A-Za-z0-9_-]+$/),
+    limit: z.number().int().min(1).max(1000).default(5),
+  },
+  async ({ scopeId, limit }) => {
+    const before = await snapshot();
+    if (
+      !before.components.some(
+        (c) => c.CircId === scopeId && c.itemtype === "Oscope",
+      )
+    )
+      throw Error("Scope is not present in this circuit");
+    return await run(buildScopeCode(scopeId, limit));
   },
 );
 await server.connect(new StdioServerTransport());

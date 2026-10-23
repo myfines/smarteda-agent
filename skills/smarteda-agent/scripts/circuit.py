@@ -1,9 +1,23 @@
 """Normalize and validate SmartEDA native XML, without contacting cloud services."""
 import argparse
+import re
 from pathlib import Path
 import xml.etree.ElementTree as ET
 
 def inspect_xml(text):
+    def repair(tag):
+        raw=tag.group(0)
+        if 'itemtype="Oscope"' not in raw: return raw
+        seen={}
+        def replace(match):
+            key,value=match.group(1),match.group(2)
+            if key in seen:
+                if seen[key]!=value: raise ValueError('Conflicting native Oscope attribute '+key)
+                return ''
+            seen[key]=value
+            return match.group(0)
+        return re.sub(r'\s([\w:-]+)="([^"]*)"',replace,raw)
+    text=re.sub(r'<item\b[^>]*>',repair,text)
     root=ET.fromstring(text)
     if root.tag != 'circuit': raise ValueError('Expected circuit root')
     items=list(root.findall('item'))

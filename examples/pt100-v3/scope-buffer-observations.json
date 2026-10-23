@@ -1,0 +1,56 @@
+{
+  "buffered": true,
+  "sampleFreshnessVerified": false,
+  "instantaneousMeasurement": false,
+  "note": "Native buffered values can disagree with current live probes; this file is failure/limitation evidence, not a current-measurement pass table.",
+  "observations": [
+    {
+      "case": "hyst150-low",
+      "bufferTail": {
+        "coordinate": 0,
+        "value1": 0,
+        "value2": 0
+      }
+    },
+    {
+      "case": "hyst150-high",
+      "bufferTail": {
+        "coordinate": 0,
+        "value1": 0,
+        "value2": 0
+      }
+    },
+    {
+      "case": "temp180",
+      "bufferTail": {
+        "coordinate": 18.53,
+        "value1": 2.31,
+        "value2": 0
+      }
+    },
+    {
+      "case": "short",
+      "bufferTail": {
+        "coordinate": 1.1,
+        "value1": -4,
+        "value2": 0
+      }
+    },
+    {
+      "case": "highR",
+      "bufferTail": {
+        "coordinate": 6.19,
+        "value1": 2.31,
+        "value2": 0
+      }
+    },
+    {
+      "case": "final100",
+      "bufferTail": {
+        "coordinate": 1.06,
+        "value1": 1.54,
+        "value2": 0
+      }
+    }
+  ]
+}
