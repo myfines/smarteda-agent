@@ -24,3 +24,5 @@ For paper and native numerical waveform work, read [layout-and-scope.md](referen
 
 
 For finite-rail excitation, native case validation, and host-tested conversion software, read [howland-validation.md](references/howland-validation.md). V4 remains an analog front-end model; independent C tests are not native MCU execution.
+
+For canonical MCU/LCD pins, native readiness and serialization pitfalls, and the verified open-source firmware fallback, read [mcu-and-fallback.md](references/mcu-and-fallback.md). Native SmartEDA MCU execution is not yet established.

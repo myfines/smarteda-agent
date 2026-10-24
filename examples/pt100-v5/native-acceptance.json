@@ -1,0 +1,77 @@
+{
+  "provenance": "SmartEDA native analog model only; no native MCU execution established",
+  "cases": [
+    {
+      "case": "normal100",
+      "objects": 97,
+      "wires": 108,
+      "sensor": {
+        "itemtype": "RTD",
+        "Temp": "100 ºC"
+      },
+      "diodeSaturationCurrent": "1.99999 nA",
+      "simulationTimes": [
+        "00:00:04 s  398 ms  578 µs  709 ns  661 ps ",
+        "00:00:04 s  430 ms  836 µs  774 ns  177 ps ",
+        "00:00:04 s  463 ms  094 µs  838 ns  693 ps ",
+        "00:00:04 s  495 ms  352 µs  903 ns  209 ps ",
+        "00:00:04 s  527 ms  610 µs  967 ns  725 ps "
+      ],
+      "evidence": "Native model round-trip and advancing simulation times; private screenshots retained; no precision native ADC voltage assertion"
+    },
+    {
+      "case": "hot180",
+      "objects": 97,
+      "wires": 108,
+      "sensor": {
+        "itemtype": "RTD",
+        "Temp": "180 ºC"
+      },
+      "diodeSaturationCurrent": "1.99999 nA",
+      "simulationTimes": [
+        "00:00:02 s  386 ms  548 µs  387 ns  089 ps ",
+        "00:00:02 s  418 ms  806 µs  451 ns  605 ps ",
+        "00:00:02 s  451 ms  064 µs  516 ns  121 ps ",
+        "00:00:02 s  483 ms  322 µs  580 ns  637 ps ",
+        "00:00:02 s  515 ms  580 µs  645 ns  153 ps "
+      ],
+      "evidence": "Native model round-trip and advancing simulation times; private screenshots retained; no precision native ADC voltage assertion"
+    },
+    {
+      "case": "short",
+      "objects": 97,
+      "wires": 108,
+      "sensor": {
+        "itemtype": "Resistor",
+        "Resistance": "0.001 Ω"
+      },
+      "diodeSaturationCurrent": "1.99999 nA",
+      "simulationTimes": [
+        "00:00:02 s  361 ms  600 µs  322 ns  573 ps ",
+        "00:00:02 s  393 ms  858 µs  387 ns  089 ps ",
+        "00:00:02 s  426 ms  116 µs  451 ns  605 ps ",
+        "00:00:02 s  458 ms  374 µs  516 ns  121 ps ",
+        "00:00:02 s  490 ms  632 µs  580 ns  637 ps "
+      ],
+      "evidence": "Native model round-trip and advancing simulation times; private screenshots retained; no precision native ADC voltage assertion"
+    },
+    {
+      "case": "high30k",
+      "objects": 97,
+      "wires": 108,
+      "sensor": {
+        "itemtype": "Resistor",
+        "Resistance": "30000 Ω"
+      },
+      "diodeSaturationCurrent": "1.99999 nA",
+      "simulationTimes": [
+        "00:00:04 s  330 ms  272 µs  580 ns  629 ps ",
+        "00:00:04 s  362 ms  530 µs  645 ns  145 ps ",
+        "00:00:04 s  394 ms  788 µs  709 ns  661 ps ",
+        "00:00:04 s  427 ms  046 µs  774 ns  177 ps ",
+        "00:00:04 s  459 ms  304 µs  838 ns  693 ps "
+      ],
+      "evidence": "Native model round-trip and advancing simulation times; private screenshots retained; no precision native ADC voltage assertion"
+    }
+  ]
+}

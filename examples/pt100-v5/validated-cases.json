@@ -1,0 +1,44 @@
+{
+  "provenance": "Independent ngspice generic diode protection model, not native SmartEDA measurement or hardware qualification; GPIO flags injected from test definitions",
+  "cases": [
+    {
+      "name": "normal100",
+      "adcV": 1.54018127,
+      "flags": 0,
+      "status": "OK",
+      "temperatureC": 100
+    },
+    {
+      "name": "hot180",
+      "adcV": 2.73906997,
+      "flags": 4,
+      "status": "OVERTEMP",
+      "temperatureC": 180
+    },
+    {
+      "name": "short",
+      "adcV": -0.344897055,
+      "flags": 1,
+      "status": "SENSOR_LOW"
+    },
+    {
+      "name": "high30k",
+      "adcV": 3.61714986,
+      "flags": 6,
+      "status": "SENSOR_HIGH"
+    },
+    {
+      "name": "contradictory",
+      "adcV": 1.54,
+      "flags": 3,
+      "status": "INVALID"
+    },
+    {
+      "name": "restored100",
+      "adcV": 1.54018127,
+      "flags": 0,
+      "status": "OK",
+      "temperatureC": 100
+    }
+  ]
+}

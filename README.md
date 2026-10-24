@@ -81,3 +81,8 @@ Upstream: [Playwright MCP](https://github.com/microsoft/playwright-mcp), [MCP SD
 ### v3 paper and alarm fixes
 
 `examples/pt100-v3` adds a centered 750x550mm sheet, comparator positive feedback and native scope telemetry. The superheat hysteresis uses 100k/10M feedback and a2.2866386V reference: ideal rising/falling thresholds2.309505/2.276505V, approximately151.1/148.9C. Same150C input with initial filter capacitor0V/3V gave low/high retained alarm states in native tests. These are controlled initial-condition tests, not a continuous heating/cooling sweep. Full native ADC/MCU, updated presentation and demonstration video are still pending.
+
+
+## v5 protected ADC and open-source firmware runner
+
+See [PT100 V5](examples/pt100-v5/README.zh-CN.md) for the native protected analog model and a real ATmega328P firmware runner using AVR8js. It verifies ADC, GPIO-decoded LCD, UART and fault recovery with independently checked ngspice DC inputs. This is staged verification; native SmartEDA MCU firmware execution and live mixed-signal cosimulation are not established. Run `node examples/pt100-v5/serve.mjs` after `npm ci --ignore-scripts` for the local interactive demo. CI rebuilds the AVR firmware and runs the same instruction-level checks.

@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="zh-CN">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>PT100 固件运行台</title>
+  <style>
+    body {
+      margin: 0;
+      background: #edf2f4;
+      color: #193240;
+      font: 16px system-ui;
+    }
+    main {
+      max-width: 920px;
+      margin: 40px auto;
+      padding: 24px;
+    }
+    h1 {
+      font-size: 30px;
+    }
+    .panel {
+      background: white;
+      border-radius: 16px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: 0 4px 18px #19324012;
+    }
+    pre {
+      white-space: pre-wrap;
+    }
+    #lcd {
+      font: 28px monospace;
+      background: #c5df77;
+      padding: 24px;
+      border: 12px solid #214d45;
+      border-radius: 8px;
+      white-space: pre;
+      line-height: 1.6;
+    }
+    select,
+    button {
+      font: inherit;
+      padding: 12px;
+      margin: 6px;
+      border-radius: 8px;
+      border: 1px solid #a6b8bc;
+    }
+    button {
+      background: #176856;
+      color: white;
+      cursor: pointer;
+    }
+    small {
+      line-height: 1.8;
+      color: #50656e;
+    }
+    #status {
+      font-weight: 600;
+    }
+  </style>
+  <main>
+    <h1>工业烘箱 PT100 测温与故障诊断</h1>
+    <p>ATmega328P · 8 MHz · 10 位 ADC · 1602 LCD · 9600 baud UART</p>
+    <div class="panel">
+      <label
+        >实验工况
+        <select id="case"></select></label
+      ><button id="run" disabled>运行 400 ms</button>
+      <p id="status">加载真实 AVR 固件…</p>
+      <div id="lcd"></div>
+    </div>
+    <div class="panel">
+      <h2>实际串口输出</h2>
+      <pre id="uart"></pre>
+    </div>
+    <small
+      >独立开源 AVR8js 执行编译后的机器指令；LCD 文字从 GPIO
+      总线解码，串口内容来自 USART 外设。ADC 电压采用 ngspice
+      直流复核结果，故障引脚按工况注入。这是分阶段系统验证，未宣称 SmartEDA 内
+      MCU 执行或实时模拟/数字协同求解。模拟器不控制实际加热设备。</small
+    >
+  </main>
+  <script type="importmap">
+    { "imports": { "avr8js": "/avr8js/index.js" } }
+  </script>
+  <script type="module">
+    import { createMachine } from "./avr-machine.mjs";
+    const $ = (id) => document.getElementById(id);
+    try {
+      const [hex, data] = await Promise.all([
+        fetch("/firmware.hex").then((r) => r.text()),
+        fetch("/validated-cases.json").then((r) => r.json()),
+      ]);
+      const machine = createMachine(hex),
+        names = {
+          normal100: "100℃正常测量",
+          hot180: "180℃超温",
+          short: "传感器短路",
+          high30k: "高阻异常 30kΩ",
+          contradictory: "故障标志矛盾",
+          restored100: "恢复100℃",
+        };
+      for (const c of data.cases) {
+        const option = document.createElement("option");
+        option.value = c.name;
+        option.textContent = names[c.name];
+        $("case").append(option);
+      }
+      let first = true;
+      function run() {
+        const c = data.cases.find((c) => c.name === $("case").value);
+        const s = machine.run(first ? 650 : 400, c.adcV, c.flags);
+        first = false;
+        $("lcd").textContent = s.lcd.join("\n");
+        $("uart").textContent = s.uart;
+        $("status").textContent =
+          `ADC输入 ${c.adcV.toFixed(6)} V · 已执行 ${s.cycles.toLocaleString()} 周期 · 心跳 ${s.heartbeatEdges} 次`;
+        $("lcd").dataset.state = s.lcd[1].trim();
+      }
+      $("run").disabled = false;
+      $("run").onclick = run;
+      $("case").onchange = run;
+      run();
+    } catch (e) {
+      $("status").textContent = "加载失败：" + e.message;
+    }
+  </script>
+</html>

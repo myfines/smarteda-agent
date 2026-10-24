@@ -1,0 +1,68 @@
+{
+  "provenance": "Independent AVR8js 0.21.1 executing avr-gcc compiled firmware.hex; actual GPIO-decoded HD44780 text and USART bytes, not native SmartEDA or live analog cosimulation; ADC values from independent ngspice DC results, fault GPIO inputs are injected test values",
+  "clockHz": 8000000,
+  "adcReferenceV": 3.3,
+  "adcBits": 10,
+  "cases": [
+    {
+      "name": "normal100",
+      "cycles": 5200000,
+      "lcd": [
+        "T=099.90 C      ",
+        "OK              "
+      ],
+      "uart": "ADC=477 T=099.90 C STATUS=OK",
+      "heartbeatEdges": 4
+    },
+    {
+      "name": "hot180",
+      "cycles": 8400001,
+      "lcd": [
+        "T=179.97 C      ",
+        "OVERTEMP        "
+      ],
+      "uart": "ADC=849 T=179.97 C STATUS=OVERTEMP",
+      "heartbeatEdges": 6
+    },
+    {
+      "name": "short",
+      "cycles": 11600001,
+      "lcd": [
+        "T=---.-- C      ",
+        "SENSOR_LOW      "
+      ],
+      "uart": "ADC=0 T=---.-- C STATUS=SENSOR_LOW",
+      "heartbeatEdges": 9
+    },
+    {
+      "name": "high30k",
+      "cycles": 14800001,
+      "lcd": [
+        "T=---.-- C      ",
+        "SENSOR_HIGH     "
+      ],
+      "uart": "ADC=1023 T=---.-- C STATUS=SENSOR_HIGH",
+      "heartbeatEdges": 12
+    },
+    {
+      "name": "contradictory",
+      "cycles": 18000001,
+      "lcd": [
+        "T=---.-- C      ",
+        "INVALID         "
+      ],
+      "uart": "ADC=477 T=---.-- C STATUS=INVALID",
+      "heartbeatEdges": 15
+    },
+    {
+      "name": "restored100",
+      "cycles": 21200001,
+      "lcd": [
+        "T=099.90 C      ",
+        "OK              "
+      ],
+      "uart": "ADC=477 T=099.90 C STATUS=OK",
+      "heartbeatEdges": 18
+    }
+  ]
+}

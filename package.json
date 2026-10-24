@@ -1,13 +1,13 @@
 {
   "name": "smarteda-agent",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": false,
   "type": "module",
   "dependencies": {
     "@modelcontextprotocol/sdk": "1.32.1",
     "@playwright/mcp": "0.0.83",
     "fast-xml-parser": "5.11.2",
-    "zod": "3.25.76"
+    "zod": "4.6.7"
   },
   "description": "Nonvisual SmartEDA native circuit MCP and Codex skill",
   "license": "MIT",
@@ -26,6 +26,7 @@
     "url": "https://github.com/myfines/smarteda-agent.git"
   },
   "devDependencies": {
+    "avr8js": "0.21.1",
     "prettier": "3.9.10"
   }
 }

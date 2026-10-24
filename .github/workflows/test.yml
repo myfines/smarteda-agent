@@ -16,3 +16,7 @@ jobs:
       - run: python3 -m unittest discover -s tests
       - run: python3 examples/pt100-v4/analyze.py
       - run: cc -std=c11 -Wall -Wextra -Werror examples/pt100-v4/pt100.c examples/pt100-v4/test_pt100.c -lm -o /tmp/pt100-test && /tmp/pt100-test
+      - run: sudo apt-get update && sudo apt-get install -y gcc-avr avr-libc binutils-avr ngspice
+      - run: python3 examples/pt100-v5/compile.py
+      - run: node examples/pt100-v5/verify-avr.mjs
+      - run: python3 examples/pt100-v5/protection.py --output /tmp/pt100-protection
