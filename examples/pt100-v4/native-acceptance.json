@@ -1,0 +1,59 @@
+{
+  "provenance": "Human visual acceptance of native SmartEDA screenshots; operations used MCP/native model, eight runs each with advancing time. Numerical precision is screenshot-level only.",
+  "connectors_after_cloud_reopen": 93,
+  "paper_mm": [
+    1100,
+    650
+  ],
+  "normal_restored_c": 100,
+  "cases": [
+    {
+      "case": "zero",
+      "temperature_c": 0,
+      "acceptance": "接近0V；无稳态故障",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "normal100",
+      "temperature_c": 100,
+      "acceptance": "输出约1.54V；三标志低",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "hot180",
+      "temperature_c": 180,
+      "acceptance": "输出约2.74V；超温高",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "short",
+      "temperature_c": 0,
+      "acceptance": "1mΩ替代：输出约−4V；低异常高",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "high30k",
+      "temperature_c": 0,
+      "acceptance": "30kΩ替代：VA约4.98V；高异常高",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "lead20",
+      "temperature_c": 100,
+      "acceptance": "三条引线均20Ω；输出约1.54V",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "hyst150low",
+      "temperature_c": 150,
+      "acceptance": "初始0V；150℃超温保持低",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    },
+    {
+      "case": "hyst150high",
+      "temperature_c": 150,
+      "acceptance": "初始3V；150℃超温保持高",
+      "evidence": "Native screenshot; distinct advancing simulation time events"
+    }
+  ]
+}

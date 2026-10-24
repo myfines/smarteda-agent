@@ -21,3 +21,6 @@ The bundled basic PT100 example is an ideal-current-source analog front end. The
 The v3 example adds comparator hysteresis and a centered custom sheet. Use `smarteda_translate` for offline whole-model shifts and `smarteda_layout` for paper sizing. The Oscope serializer repeats attributes such as Trigger/connectGnd; normalize identical repeats only, and reject conflicting duplicates. Capture original native XML before normalization.
 
 For paper and native numerical waveform work, read [layout-and-scope.md](references/layout-and-scope.md).
+
+
+For finite-rail excitation, native case validation, and host-tested conversion software, read [howland-validation.md](references/howland-validation.md). V4 remains an analog front-end model; independent C tests are not native MCU execution.

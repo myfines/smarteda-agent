@@ -2,6 +2,12 @@
 
 Nonvisual tools for SmartEDA's Qt/WASM circuit editor, plus a reusable Codex skill. Community project, tested against the October 2026 web application. No screenshot coordinates, OCR, or image model is required to operate the tools.
 
+The [V4 PT100 example](examples/pt100-v4/README.md) adds finite-rail
+Howland excitation, reproducible error calculations, independent ngspice
+cross-checks and host-tested C temperature conversion. See its
+[Chinese design report](examples/pt100-v4/DESIGN.zh-CN.md) for evidence
+and implementation limits. It does not claim native MCU execution.
+
 ## Quick start
 
 Requirements: Node.js 20+, Chrome, and an authorized SmartEDA account.

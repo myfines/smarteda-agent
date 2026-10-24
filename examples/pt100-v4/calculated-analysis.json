@@ -1,0 +1,58 @@
+{
+  "provenance": "Independent analytical calculations; not native measured samples",
+  "normal100": {
+    "temperature": 100,
+    "rtd_ohm": 138.50549999999998,
+    "va_v": 0.1425045040064248,
+    "vb_v": 0.14050451792893506,
+    "drive_v": 0.2425040189983868,
+    "current_ma": 0.9999930246944195,
+    "comp_v": 0.13850453185144532,
+    "vout_v": 1.5401812740578125
+  },
+  "fault30k": {
+    "temperature": 0,
+    "rtd_ohm": 30000.0,
+    "va_v": 4.983366526120907,
+    "vb_v": 4.9830343439833715,
+    "drive_v": 5,
+    "current_ma": 0.16609057046462292,
+    "comp_v": 4.982702161845836,
+    "vout_v": 5
+  },
+  "lead20": {
+    "temperature": 100,
+    "rtd_ohm": 138.50549999999998,
+    "va_v": 0.1785038025323765,
+    "vb_v": 0.15850399212046926,
+    "drive_v": 0.27850324552588546,
+    "current_ma": 0.9999905047449629,
+    "comp_v": 0.13850418170856202,
+    "vout_v": 1.5401672683424805
+  },
+  "lead_mismatch_0p1_ohm_error_c": 0.2636634316345834,
+  "two_wire_4_ohm_error_at100_c": 10.563288128794767,
+  "filter": {
+    "tau_s": 0.01,
+    "fc_hz": 15.915494309189533,
+    "t99_s": 0.04605170185988091,
+    "gain_50hz": 0.30331447105335285,
+    "gain_100hz": 0.15717672547758985
+  },
+  "self_heating_assumed_0p4_c_per_mw_max_c": 0.07034240000000001,
+  "sensor_class_A_bound_at200_c": 0.55,
+  "adc_12bit_3p3v_half_lsb_max_c": 0.027393087518723176,
+  "monte_carlo": {
+    "seed": 20261024,
+    "n": 10000,
+    "untrimmed_200c_error_minmax_c": [
+      -0.40778706355246186,
+      0.41697723937090814
+    ],
+    "two_point_trim_200c_error_minmax_c": [
+      -0.01447103056642618,
+      0.013159655488806266
+    ],
+    "assumptions": "Vref +/-0.05%, set resistor and each Howland ratio resistor +/-0.01% independent uniform; remaining stages ideal. Calibration voltages unquantized. No total-system accuracy claim."
+  }
+}
