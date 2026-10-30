@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.6.0
+
+- Add explicit-pin connectivity inspection and item/property model diffs.
+- Add atomic offline block cloning, internal wire translation, external boundary reporting, cascade deletion and observed-pin wiring.
+- Allow native reads to include XML for AI tool chaining.
+- Verify all three new tools through actual stdio MCP calls; newly cloned native topology is not yet live-import tested.
+
 ## 0.5.0
 
 - Add local configuration doctor and explicit Chrome executable support.

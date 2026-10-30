@@ -18,6 +18,7 @@ import {
   buildReadCode,
   buildSimulationCode,
 } from "./core.mjs";
+import { inspectCircuit, diffCircuits, editCircuit } from "./model.mjs";
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json");
 let browser;
@@ -145,10 +146,11 @@ tool(
 tool(
   "smarteda_read",
   "Read native serialized components, wires and captured simulation telemetry. No screenshots.",
-  {},
-  async () => {
+  { includeXml: z.boolean().default(false) },
+  async ({ includeXml }) => {
     const s = await snapshot();
     return {
+      ...(includeXml ? { xml: s.xml } : {}),
       engine: s.engine,
       components: s.components,
       connectors: s.connectors,
@@ -337,6 +339,47 @@ tool(
     return await run(buildScopeCode(scopeId, limit));
   },
 );
+const xmlSchema = z.string().max(5_000_000);
+tool(
+  "smarteda_inspect",
+  "Return explicit-pin connectivity nets, type counts and unwired components. Supply XML for offline analysis or omit it to inspect the current native model. Not ERC.",
+  { xml: xmlSchema.optional() },
+  async ({ xml }) => inspectCircuit(xml ?? (await snapshot()).xml),
+);
+tool(
+  "smarteda_diff",
+  "Compare two native models by item ID; report added/removed items, changed properties and whether topology changed. Offline, no cloud writes.",
+  { before: xmlSchema, after: xmlSchema },
+  async ({ before, after }) => diffCircuits(before, after),
+);
+tool(
+  "smarteda_edit",
+  "Edit native topology offline: clone an existing component block and its internal wires with translated coordinates; report unconnected external boundaries. Remove items with explicit cascade or add wires between observed pins. Returns XML and diff; apply separately for native verification.",
+  {
+    xml: xmlSchema,
+    clone: z
+      .object({
+        ids: z.array(z.string().min(1)).min(1).max(500),
+        dx: z.number().finite(),
+        dy: z.number().finite(),
+      })
+      .optional(),
+    remove: z.array(z.string().min(1)).max(1000).default([]),
+    cascade: z.boolean().default(false),
+    connections: z
+      .array(
+        z.object({
+          from: z.string().min(1),
+          to: z.string().min(1),
+          points: z.array(z.number().finite()).min(4).max(2000),
+        }),
+      )
+      .max(1000)
+      .default([]),
+  },
+  async ({ xml, ...edit }) => editCircuit(xml, edit),
+);
+
 await server.connect(new StdioServerTransport());
 async function close() {
   await browser?.close();

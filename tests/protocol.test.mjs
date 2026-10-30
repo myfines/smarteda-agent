@@ -24,7 +24,7 @@ test("real stdio MCP discovery, validation, patch and explicit login requirement
       JSON.parse(await readFile("package.json", "utf8")).version,
     );
     const tools = await client.listTools();
-    assert.equal(tools.tools.length, 10);
+    assert.equal(tools.tools.length, 13);
     const xml = await readFile(
       "skills/smarteda-agent/assets/pt100.circuit",
       "utf8",
@@ -34,6 +34,22 @@ test("real stdio MCP discovery, validation, patch and explicit login requirement
       arguments: { xml },
     });
     assert.equal(result.structuredContent.connectors, 13);
+    const inspect = await client.callTool({
+      name: "smarteda_inspect",
+      arguments: { xml },
+    });
+    assert.equal(inspect.structuredContent.connectors, 13);
+    const edit = await client.callTool({
+      name: "smarteda_edit",
+      arguments: { xml, clone: { ids: ["Resistor-1"], dx: 200, dy: 0 } },
+    });
+    assert.equal(edit.isError, undefined);
+    assert.ok(edit.structuredContent.idMap["Resistor-1"]);
+    const diff = await client.callTool({
+      name: "smarteda_diff",
+      arguments: { before: xml, after: edit.structuredContent.xml },
+    });
+    assert.equal(diff.structuredContent.added.length, 1);
     const patched = await client.callTool({
       name: "smarteda_patch",
       arguments: {

@@ -96,3 +96,12 @@ See [PT100 V5](examples/pt100-v5/README.zh-CN.md) for the native protected analo
 `npm pack` runs the test gate and builds an allowlisted package. Install that local tarball to try the CLI; npm registry publication is not implied. `smarteda-doctor` checks local prerequisites without printing private paths or starting Chrome. Set `SMARTEDA_CHROME` for a nonstandard Chrome executable. Doctor success does not establish login or live platform compatibility.
 
 See [changelog](CHANGELOG.md), [private data guidance](SECURITY.md), and [evaluation workflow](docs/ADOPTION.zh-CN.md).
+
+## AI modeling tools (0.6)
+
+- `smarteda_read({includeXml:true})`: obtain native XML for offline tool chaining; default reads remain compact.
+- `smarteda_inspect({xml})`: explicit-pin nets, type counts and unwired components; omit XML to inspect the active model.
+- `smarteda_diff({before,after})`: added/removed IDs and property changes, with a topology-change flag.
+- `smarteda_edit({xml,clone,remove,cascade,connections})`: clone a flat block, translate positions/internal wires, list external boundary pins, remove components/wires, and add connections between observed pins. Returns edited XML, ID mapping and diff. No cloud write.
+
+See [AI modeling workflow](skills/smarteda-agent/references/modeling.md) for call examples. These are structural transformations, not ERC or an autorouter. Offline tests and real MCP calls cover the new tools; online import of newly cloned topology has not been verified in this release.

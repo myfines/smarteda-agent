@@ -30,3 +30,5 @@ For canonical MCU/LCD pins, native readiness and serialization pitfalls, and the
 For user-requested competition submission and recording evidence, read [submission.md](references/submission.md).
 
 For a fresh installation, run `smarteda-doctor` from the installed package (or `npm run doctor` in the repository). It checks local prerequisites without opening the browser and does not certify login or vendor compatibility. The repository docs/ADOPTION.zh-CN.md describes a sandbox evaluation and integration proposal.
+
+For AI-driven connectivity inspection, model diffs, block cloning and topology edits, read [modeling.md](references/modeling.md). Use `smarteda_read({includeXml:true})` when an offline tool needs the current XML.
