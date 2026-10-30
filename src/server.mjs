@@ -18,6 +18,8 @@ import {
   buildReadCode,
   buildSimulationCode,
 } from "./core.mjs";
+import { ResourceCache, cacheLoadCode } from "./cache.mjs";
+import { buildNetworkCode } from "./network.mjs";
 import { inspectCircuit, diffCircuits, editCircuit } from "./model.mjs";
 const require = createRequire(import.meta.url);
 const { version } = require("../package.json");
@@ -25,6 +27,9 @@ let browser;
 let connecting;
 let chain = Promise.resolve();
 const output = resolve(process.env.SMARTEDA_OUTPUT || "smarteda-output");
+const resourceCache = new ResourceCache(
+  process.env.SMARTEDA_CACHE || join(output, "resource-cache"),
+);
 async function getBrowser() {
   if (browser) return browser;
   if (connecting) return connecting;
@@ -39,6 +44,9 @@ async function getBrowser() {
       "chrome",
       "--user-data-dir",
       resolve(process.env.SMARTEDA_PROFILE),
+      "--timeout-navigation",
+      "90000",
+      "--block-service-workers",
       "--image-responses",
       "omit",
     ];
@@ -56,6 +64,22 @@ async function getBrowser() {
         stderr: "inherit",
       }),
     );
+    try {
+      if (process.env.SMARTEDA_NETWORK_RECOVERY !== "false") {
+        const installed = await c.callTool(
+          {
+            name: "browser_run_code_unsafe",
+            arguments: { code: buildNetworkCode() },
+          },
+          undefined,
+          { timeout: 15000 },
+        );
+        decode(installed);
+      }
+    } catch (error) {
+      await c.close();
+      throw error;
+    }
     browser = c;
     return c;
   })();
@@ -133,7 +157,7 @@ tool(
     const result = await c.callTool(
       { name: "browser_navigate", arguments: { url } },
       undefined,
-      { timeout: 60000 },
+      { timeout: 120000 },
     );
     if (result.isError) throw Error("Navigation failed");
     return {
@@ -380,9 +404,62 @@ tool(
   async ({ xml, ...edit }) => editCircuit(xml, edit),
 );
 
+tool(
+  "smarteda_network",
+  "Read privacy-preserving static asset recovery counters. Installs recovery when explicitly called after SMARTEDA_NETWORK_RECOVERY=false. No URLs, tokens, design data, cloud API retries or page reloads.",
+  {},
+  async () => await run(buildNetworkCode()),
+);
+tool(
+  "smarteda_cache_save",
+  "Cache a matching official public HTML/JS/WASM/worker/font bundle privately on disk. Entries may download a URL or import an already downloaded local path. No vendor assets are redistributed. Batch failure keeps the previous manifest active; explicitly load then reload to use a new bundle.",
+  {
+    entries: z
+      .array(
+        z.object({ url: z.string().url(), path: z.string().min(1).optional() }),
+      )
+      .min(1)
+      .max(200),
+    discover: z.boolean().default(false),
+  },
+  async ({ entries, discover }) =>
+    await resourceCache.save(entries, { discover }),
+);
+tool(
+  "smarteda_cache_load",
+  "Enable or disable local resource routes. Hits use cached vendor bytes and isolation headers; missing entries fall through to live network. Does not refresh or mutate the circuit. Cache can be stale; caller chooses a matching bundle.",
+  { enabled: z.boolean().default(true) },
+  async ({ enabled }) => {
+    if (!enabled)
+      return await run(
+        "async(page)=>{const s=page.context().__smartedaDiskCache;if(s)s.enabled=false;return {enabled:false}}",
+      );
+    const status = await resourceCache.status();
+    if (!status.entries.length)
+      throw Error("Cache is empty; call smarteda_cache_save first");
+    const connection = await resourceCache.start();
+    return await run(cacheLoadCode(connection));
+  },
+);
+tool(
+  "smarteda_cache_status",
+  "List local cached public resources, byte counts and hashes without loading a browser or returning binary bodies.",
+  {},
+  async () => await resourceCache.status(),
+);
+tool(
+  "smarteda_reload",
+  "Explicitly reload the current official SmartEDA page after changing resource routes. Unsaved page edits may be lost; save/export first when needed. Returns loading diagnostics, not proof of successful simulation.",
+  {},
+  async () =>
+    await run(
+      "async(page)=>{if(new URL(page.url()).origin!=='https://design.ismarteda.com')throw Error('Expected official SmartEDA page');let navigation;try{const r=await page.reload({waitUntil:'domcontentloaded',timeout:60000});navigation={status:r?.status()};}catch{navigation={timedOutOrFailed:true};}const native=await page.evaluate(()=>({engine:window.qtLoader?.status||null,hostPresent:!!document.querySelector('#viewer-render')}));const disk=page.context().__smartedaDiskCache;return {navigation,...native,cache:disk?{enabled:disk.enabled,hits:disk.hits,misses:disk.misses}:null,network:page.context().__smartedaNetwork?.report()||null}}",
+    ),
+);
 await server.connect(new StdioServerTransport());
 async function close() {
   await browser?.close();
+  await resourceCache.close();
   process.exit(0);
 }
 process.on("SIGINT", close);

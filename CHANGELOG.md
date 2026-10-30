@@ -1,5 +1,21 @@
 # Changelog
 
+## 0.8.0
+
+- Add persistent private cache for matching official HTML, JS, WASM, worker and font resources.
+- Import existing local downloads or fetch explicit public URLs; optionally discover shell links.
+- Add cache save/status/load/bypass and explicit reload tools for AI-directed recovery.
+- Stream cached bytes through an authenticated loopback bridge instead of MCP/base64 output.
+- Verify actual Chrome upstream-blocked HTML/WASM loading and compilation using a minimal fixture.
+
+## 0.7.0
+
+- Recover transient official static GET failures with bounded attempts before navigation.
+- Add a bounded private session cache for hashed assets while preserving isolation headers.
+- Add smarteda_network diagnostics; never retry cloud writes or API requests.
+- Verify recovery with mock failure cases, a real Chrome/local upstream test, and actual MCP startup.
+- Current server outage recovery and unversioned runtime offline caching are not established.
+
 ## 0.6.0
 
 - Add explicit-pin connectivity inspection and item/property model diffs.

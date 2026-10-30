@@ -1,6 +1,6 @@
 {
   "name": "smarteda-agent",
-  "version": "0.6.0",
+  "version": "0.8.0",
   "private": false,
   "type": "module",
   "dependencies": {
@@ -19,7 +19,9 @@
     "test": "node --test tests/*.test.mjs",
     "start": "node src/server.mjs",
     "doctor": "node src/doctor.mjs",
-    "prepack": "npm test"
+    "prepack": "npm test",
+    "test:network-browser": "node scripts/network-smoke.mjs",
+    "test:cache-browser": "node scripts/cache-smoke.mjs"
   },
   "engines": {
     "node": ">=20"
@@ -41,6 +43,8 @@
     "CONTRIBUTING.md",
     "SECURITY.md",
     "CHANGELOG.md",
-    "LICENSE"
+    "LICENSE",
+    "scripts/network-smoke.mjs",
+    "scripts/cache-smoke.mjs"
   ]
 }

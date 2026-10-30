@@ -105,3 +105,27 @@ See [changelog](CHANGELOG.md), [private data guidance](SECURITY.md), and [evalua
 - `smarteda_edit({xml,clone,remove,cascade,connections})`: clone a flat block, translate positions/internal wires, list external boundary pins, remove components/wires, and add connections between observed pins. Returns edited XML, ID mapping and diff. No cloud write.
 
 See [AI modeling workflow](skills/smarteda-agent/references/modeling.md) for call examples. These are structural transformations, not ERC or an autorouter. Offline tests and real MCP calls cover the new tools; online import of newly cloned topology has not been verified in this release.
+
+## Network recovery (0.7)
+
+Recovery is installed before navigation in the dedicated browser. Official SmartEDA static GETs and the root document use at most three attempts (30s per attempt (90s for unversioned native JS/WASM)) for transport errors and 408/429/500/502/503/504. API reads, writes and third-party requests pass through untouched; no automatic reload or resubmission occurs.
+
+Hashed JS/CSS/font assets can use a 32MiB in-memory LRU cache. Cache entries retain isolation headers, exclude no-store/private/no-cache/cookie responses, and are never written to disk. HTML, unversioned runtime/WASM, authenticated API data and query-string assets are not cached. This does not fix server outages or establish offline operation. Service workers are blocked in the dedicated profile to make interception effective.
+
+Call `smarteda_network` for counters and redacted event types; no URLs, tokens or design payloads are returned. `SMARTEDA_NETWORK_RECOVERY=false` disables automatic installation at startup; explicitly calling the network tool installs it. Restart the server to clear session cache or change startup behavior.
+
+`npm run test:network-browser` runs a real Chrome/local upstream fault-injection test, including 503 recovery, cache reuse, isolation and single-attempt POST. This is separate from a live vendor availability test.
+
+## Persistent runtime cache (0.8)
+
+For AI agents handling unreliable vendor loading:
+
+1. `smarteda_cache_save({entries:[{url:"https://design.ismarteda.com/",path:"/private/matching-index.html"},{url:"https://design.ismarteda.com/smartEDA.wasm",path:"/private/matching-smartEDA.wasm"}]})`. Include matching JS, worker, qtloader, hashed chunks and fonts. Omit `path` to download a public resource. `discover:true` adds public resource links from root HTML; dynamic JS imports still need explicit entries.
+2. `smarteda_cache_status()` lists cached URLs, sizes and hashes.
+3. `smarteda_cache_load()` installs cache routes without a refresh. Missing resources fall through to live requests; API traffic is untouched.
+4. `smarteda_reload()` explicitly refreshes the selected official page and reports engine/cache/network state. Save any unsaved circuit changes first.
+5. `smarteda_cache_load({enabled:false})` bypasses disk cache. Restart clears memory cache; persisted files remain available for later loads.
+
+Set `SMARTEDA_CACHE` to a private directory; default is under SMARTEDA_OUTPUT/resource-cache. Original HTML, unversioned WASM and runtime files can now be imported and reused as an explicitly selected local bundle. Keep versions matched; a cache hit does not certify engine or circuit readiness. Failed save batches leave the previous manifest active. Vendor files stay on the user's machine and are excluded from the repository/package.
+
+`npm run test:cache-browser` blocks upstream network, serves cached HTML/WASM through the actual local bridge in Chrome, and verifies cross-origin isolation and WASM compilation. Its tiny fixture is not a full SmartEDA runtime.

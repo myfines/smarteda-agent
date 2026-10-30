@@ -24,7 +24,7 @@ test("real stdio MCP discovery, validation, patch and explicit login requirement
       JSON.parse(await readFile("package.json", "utf8")).version,
     );
     const tools = await client.listTools();
-    assert.equal(tools.tools.length, 13);
+    assert.equal(tools.tools.length, 18);
     const xml = await readFile(
       "skills/smarteda-agent/assets/pt100.circuit",
       "utf8",
