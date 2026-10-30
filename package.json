@@ -1,6 +1,6 @@
 {
   "name": "smarteda-agent",
-  "version": "0.4.0",
+  "version": "0.5.0",
   "private": false,
   "type": "module",
   "dependencies": {
@@ -12,11 +12,14 @@
   "description": "Nonvisual SmartEDA native circuit MCP and Codex skill",
   "license": "MIT",
   "bin": {
-    "smarteda-mcp": "src/server.mjs"
+    "smarteda-mcp": "src/server.mjs",
+    "smarteda-doctor": "src/doctor.mjs"
   },
   "scripts": {
     "test": "node --test tests/*.test.mjs",
-    "start": "node src/server.mjs"
+    "start": "node src/server.mjs",
+    "doctor": "node src/doctor.mjs",
+    "prepack": "npm test"
   },
   "engines": {
     "node": ">=20"
@@ -28,5 +31,16 @@
   "devDependencies": {
     "avr8js": "0.21.1",
     "prettier": "3.9.10"
-  }
+  },
+  "files": [
+    "src/",
+    "skills/",
+    "examples/",
+    "README.md",
+    "docs/",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CHANGELOG.md",
+    "LICENSE"
+  ]
 }

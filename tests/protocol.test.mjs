@@ -19,6 +19,10 @@ test("real stdio MCP discovery, validation, patch and explicit login requirement
         stderr: "inherit",
       }),
     );
+    assert.equal(
+      client.getServerVersion().version,
+      JSON.parse(await readFile("package.json", "utf8")).version,
+    );
     const tools = await client.listTools();
     assert.equal(tools.tools.length, 10);
     const xml = await readFile(

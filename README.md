@@ -8,6 +8,8 @@ cross-checks and host-tested C temperature conversion. See its
 [Chinese design report](examples/pt100-v4/DESIGN.zh-CN.md) for evidence
 and implementation limits. It does not claim native MCU execution.
 
+中文试用、验收及官方合作提案见 [集成评估流程](docs/ADOPTION.zh-CN.md)。这是社区项目，尚无官方合作或认证。
+
 ## Quick start
 
 Requirements: Node.js 20+, Chrome, and an authorized SmartEDA account.
@@ -17,6 +19,8 @@ git clone https://github.com/myfines/smarteda-agent.git
 cd smarteda-agent
 npm ci
 npm test
+# After configuring your dedicated profile:
+npm run doctor
 ```
 
 Configure your MCP client (replace both absolute paths):
@@ -86,3 +90,9 @@ Upstream: [Playwright MCP](https://github.com/microsoft/playwright-mcp), [MCP SD
 ## v5 protected ADC and open-source firmware runner
 
 See [PT100 V5](examples/pt100-v5/README.zh-CN.md) for the native protected analog model and a real ATmega328P firmware runner using AVR8js. It verifies ADC, GPIO-decoded LCD, UART and fault recovery with independently checked ngspice DC inputs. This is staged verification; native SmartEDA MCU firmware execution and live mixed-signal cosimulation are not established. Run `node examples/pt100-v5/serve.mjs` after `npm ci --ignore-scripts` for the local interactive demo. CI rebuilds the AVR firmware and runs the same instruction-level checks.
+
+## Release and installation checks
+
+`npm pack` runs the test gate and builds an allowlisted package. Install that local tarball to try the CLI; npm registry publication is not implied. `smarteda-doctor` checks local prerequisites without printing private paths or starting Chrome. Set `SMARTEDA_CHROME` for a nonstandard Chrome executable. Doctor success does not establish login or live platform compatibility.
+
+See [changelog](CHANGELOG.md), [private data guidance](SECURITY.md), and [evaluation workflow](docs/ADOPTION.zh-CN.md).

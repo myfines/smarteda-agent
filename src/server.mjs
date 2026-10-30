@@ -19,6 +19,7 @@ import {
   buildSimulationCode,
 } from "./core.mjs";
 const require = createRequire(import.meta.url);
+const { version } = require("../package.json");
 let browser;
 let connecting;
 let chain = Promise.resolve();
@@ -40,9 +41,11 @@ async function getBrowser() {
       "--image-responses",
       "omit",
     ];
+    if (process.env.SMARTEDA_CHROME)
+      args.push("--executable-path", resolve(process.env.SMARTEDA_CHROME));
     if (process.env.SMARTEDA_HEADLESS !== "false") args.push("--headless");
     const c = new Client(
-      { name: "smarteda-native-backend", version: "0.3.0" },
+      { name: "smarteda-native-backend", version },
       { capabilities: {} },
     );
     await c.connect(
@@ -98,7 +101,7 @@ async function snapshot() {
   const m = parseCircuit(s.xml);
   return { ...s, components: m.components, connectors: m.connectors };
 }
-const server = new McpServer({ name: "smarteda-agent", version: "0.3.0" });
+const server = new McpServer({ name: "smarteda-agent", version });
 function tool(name, description, inputSchema, handler) {
   server.registerTool(name, { description, inputSchema }, async (args) => {
     const task = chain.then(async () => {
